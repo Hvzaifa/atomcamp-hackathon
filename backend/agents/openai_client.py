@@ -47,9 +47,9 @@ async def call_llm(system_prompt: str, user_prompt: str) -> dict:
         return json.loads(content)
     except json.JSONDecodeError:
         logger.warning("call_llm: first response was not valid JSON; retrying once")
-    except Exception:  # network errors, auth, rate limits, etc.
+    except Exception as exc:  # network errors, auth, rate limits, etc.
         logger.exception("call_llm: request failed")
-        return {"error": "request_failed"}
+        return {"error": "request_failed", "detail": f"{type(exc).__name__}: {exc}"}
 
     # Retry once with an appended instruction to return only JSON.
     try:
@@ -59,6 +59,6 @@ async def call_llm(system_prompt: str, user_prompt: str) -> dict:
     except json.JSONDecodeError:
         logger.warning("call_llm: retry response was still not valid JSON")
         return {"error": "parse_failed"}
-    except Exception:
+    except Exception as exc:
         logger.exception("call_llm: retry request failed")
-        return {"error": "request_failed"}
+        return {"error": "request_failed", "detail": f"{type(exc).__name__}: {exc}"}
