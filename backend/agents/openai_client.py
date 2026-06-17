@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
@@ -17,8 +18,18 @@ MODEL = "gpt-4o"
 TEMPERATURE = 0.3
 _RETRY_INSTRUCTION = "Return ONLY valid JSON, no other text"
 
+# Strip whitespace/newlines: a trailing "\n" (common when pasting the key into
+# a host's env var UI) produces an illegal Authorization header and a confusing
+# APIConnectionError instead of an auth error.
+_API_KEY = (os.getenv("OPENAI_API_KEY") or "").strip()
+
 # Single reusable client instance shared across all agents.
-client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = AsyncOpenAI(api_key=_API_KEY)
+
+
+def _redact(text: str) -> str:
+    """Remove any API-key-like tokens so they never reach a client response."""
+    return re.sub(r"sk-[A-Za-z0-9_-]{10,}", "sk-***", text)
 
 
 async def _complete(system_prompt: str, user_prompt: str) -> str:
@@ -53,7 +64,7 @@ async def call_llm(system_prompt: str, user_prompt: str) -> dict:
         detail = f"{type(exc).__name__}: {exc}"
         if cause is not None:
             detail += f" | cause: {type(cause).__name__}: {cause}"
-        return {"error": "request_failed", "detail": detail, "key_present": bool(os.getenv("OPENAI_API_KEY"))}
+        return {"error": "request_failed", "detail": _redact(detail)}
 
     # Retry once with an appended instruction to return only JSON.
     try:
@@ -69,4 +80,4 @@ async def call_llm(system_prompt: str, user_prompt: str) -> dict:
         detail = f"{type(exc).__name__}: {exc}"
         if cause is not None:
             detail += f" | cause: {type(cause).__name__}: {cause}"
-        return {"error": "request_failed", "detail": detail, "key_present": bool(os.getenv("OPENAI_API_KEY"))}
+        return {"error": "request_failed", "detail": _redact(detail)}
