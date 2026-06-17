@@ -49,7 +49,11 @@ async def call_llm(system_prompt: str, user_prompt: str) -> dict:
         logger.warning("call_llm: first response was not valid JSON; retrying once")
     except Exception as exc:  # network errors, auth, rate limits, etc.
         logger.exception("call_llm: request failed")
-        return {"error": "request_failed", "detail": f"{type(exc).__name__}: {exc}"}
+        cause = exc.__cause__ or exc.__context__
+        detail = f"{type(exc).__name__}: {exc}"
+        if cause is not None:
+            detail += f" | cause: {type(cause).__name__}: {cause}"
+        return {"error": "request_failed", "detail": detail, "key_present": bool(os.getenv("OPENAI_API_KEY"))}
 
     # Retry once with an appended instruction to return only JSON.
     try:
@@ -61,4 +65,8 @@ async def call_llm(system_prompt: str, user_prompt: str) -> dict:
         return {"error": "parse_failed"}
     except Exception as exc:
         logger.exception("call_llm: retry request failed")
-        return {"error": "request_failed", "detail": f"{type(exc).__name__}: {exc}"}
+        cause = exc.__cause__ or exc.__context__
+        detail = f"{type(exc).__name__}: {exc}"
+        if cause is not None:
+            detail += f" | cause: {type(cause).__name__}: {cause}"
+        return {"error": "request_failed", "detail": detail, "key_present": bool(os.getenv("OPENAI_API_KEY"))}
