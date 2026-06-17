@@ -3,9 +3,6 @@
 *.env
 !.env.example
 
-# Frontend (not pushed)
-frontend/
-
 # Python
 backend/venv/
 **/__pycache__/
