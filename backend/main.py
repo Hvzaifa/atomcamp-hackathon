@@ -10,8 +10,9 @@ app = FastAPI(title="Business Agent Orchestrator", version="1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    # Allow any localhost/127.0.0.1 port so a different Vite dev port still works.
-    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
+    # Allow any localhost/127.0.0.1 port (Vite dev) plus any https origin so the
+    # deployed frontend can reach the Railway backend regardless of host.
+    allow_origin_regex=r"https://.*|http://(localhost|127\.0\.0\.1):\d+",
     allow_methods=["*"],
     allow_headers=["*"],
 )
