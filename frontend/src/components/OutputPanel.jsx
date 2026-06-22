@@ -47,12 +47,20 @@ function AnimatedNumber({ value }) {
   return <motion.span>{display}</motion.span>
 }
 
-function Card({ title, children }) {
+function Card({ icon, title, index, children }) {
   return (
-    <section className="bg-white rounded-lg shadow p-5">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-4">
-        {title}
-      </h2>
+    <section className="glass rounded-3xl p-6 sm:p-7">
+      <div className="mb-5 flex items-center gap-3 border-b border-white/60 pb-4">
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/70 text-base shadow-glass-sm">
+          {icon}
+        </span>
+        <h2 className="text-[15px] font-bold tracking-tight text-ink-900">
+          {title}
+        </h2>
+        {index != null && (
+          <span className="swiss-label ml-auto tabular-nums">{index}</span>
+        )}
+      </div>
       {children}
     </section>
   )
@@ -61,7 +69,7 @@ function Card({ title, children }) {
 function Badge({ className, children }) {
   return (
     <span
-      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${className}`}
+      className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${className}`}
     >
       {children}
     </span>
@@ -71,37 +79,42 @@ function Badge({ className, children }) {
 function OrdersSection({ operations }) {
   const orders = operations?.orders ?? []
   return (
-    <Card title="📋 Orders">
+    <Card icon="📋" title="Orders" index="01">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-gray-500 border-b border-gray-200">
-              <th className="py-2 pr-4 font-medium">Customer</th>
-              <th className="py-2 pr-4 font-medium">Items</th>
-              <th className="py-2 pr-4 font-medium">Total</th>
-              <th className="py-2 pr-4 font-medium">Status</th>
-              <th className="py-2 font-medium">Payment</th>
+            <tr className="border-b border-white/60 text-left text-[11px] uppercase tracking-[0.12em] text-ink-400">
+              <th className="py-2 pr-4 font-semibold">Customer</th>
+              <th className="py-2 pr-4 font-semibold">Items</th>
+              <th className="py-2 pr-4 font-semibold">Total</th>
+              <th className="py-2 pr-4 font-semibold">Status</th>
+              <th className="py-2 font-semibold">Payment</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order, i) => (
-              <tr key={order.id ?? i} className="border-b border-gray-100">
-                <td className="py-2 pr-4 font-medium text-gray-800">
+              <tr
+                key={order.id ?? i}
+                className="border-b border-white/50 last:border-0 transition-colors hover:bg-white/40"
+              >
+                <td className="py-2.5 pr-4 font-semibold text-ink-800">
                   {order.customer}
                 </td>
-                <td className="py-2 pr-4 text-gray-600">
+                <td className="py-2.5 pr-4 text-ink-500">
                   {(order.items ?? [])
                     .map((it) => `${it.quantity}× ${it.name}`)
                     .join(', ')}
                 </td>
-                <td className="py-2 pr-4 text-gray-800">{fmt(order.total)}</td>
-                <td className="py-2 pr-4">
-                  <Badge className={STATUS_BADGE[order.status] ?? 'bg-gray-100 text-gray-600'}>
+                <td className="py-2.5 pr-4 font-semibold tabular-nums text-ink-800">
+                  {fmt(order.total)}
+                </td>
+                <td className="py-2.5 pr-4">
+                  <Badge className={STATUS_BADGE[order.status] ?? 'bg-ink-100 text-ink-500'}>
                     {order.status}
                   </Badge>
                 </td>
-                <td className="py-2">
-                  <Badge className={PAYMENT_BADGE[order.payment_status] ?? 'bg-gray-100 text-gray-600'}>
+                <td className="py-2.5">
+                  <Badge className={PAYMENT_BADGE[order.payment_status] ?? 'bg-ink-100 text-ink-500'}>
                     {order.payment_status}
                   </Badge>
                 </td>
@@ -109,7 +122,7 @@ function OrdersSection({ operations }) {
             ))}
             {orders.length === 0 && (
               <tr>
-                <td colSpan={5} className="py-3 text-gray-400 text-center">
+                <td colSpan={5} className="py-4 text-center text-ink-400">
                   No orders
                 </td>
               </tr>
@@ -124,9 +137,9 @@ function OrdersSection({ operations }) {
 function InventorySection({ inventory }) {
   const alerts = inventory?.restock_alerts ?? []
   return (
-    <Card title="📦 Inventory">
+    <Card icon="📦" title="Inventory" index="02">
       {alerts.length > 0 && inventory?.can_fulfill_tomorrow === false && (
-        <div className="mb-4 rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+        <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-200/70 bg-red-50/70 px-3.5 py-2.5 text-sm font-medium text-red-700">
           ⚠️ Cannot fulfill tomorrow's demand
         </div>
       )}
@@ -134,30 +147,32 @@ function InventorySection({ inventory }) {
         {alerts.map((alert, i) => (
           <div
             key={alert.item ?? i}
-            className="flex items-center justify-between rounded-md border border-gray-100 px-3 py-2 text-sm"
+            className="flex items-center justify-between gap-3 rounded-xl border border-white/60 bg-white/40 px-3.5 py-2.5 text-sm"
           >
-            <span className="font-medium text-gray-800">{alert.item}</span>
-            <span className="text-gray-500">
+            <span className="font-semibold text-ink-800">{alert.item}</span>
+            <span className="tabular-nums text-ink-500">
               Stock: {fmt(alert.current_stock)} · Restock: {fmt(alert.recommended_restock)}
             </span>
-            <Badge className={URGENCY_BADGE[alert.urgency] ?? 'bg-gray-100 text-gray-600'}>
+            <Badge className={URGENCY_BADGE[alert.urgency] ?? 'bg-ink-100 text-ink-500'}>
               {alert.urgency}
             </Badge>
           </div>
         ))}
         {alerts.length === 0 && (
-          <p className="text-sm text-gray-400">Inventory not tracked for this entry.</p>
+          <p className="text-sm text-ink-400">Inventory not tracked for this entry.</p>
         )}
       </div>
     </Card>
   )
 }
 
-function Stat({ label, value, valueClass = 'text-gray-800' }) {
+function Stat({ label, value, valueClass = 'text-ink-900' }) {
   return (
-    <div className="flex-1 rounded-md bg-gray-50 px-4 py-3 text-center">
-      <div className="text-xs uppercase tracking-wide text-gray-500">{label}</div>
-      <div className={`mt-1 text-xl font-bold ${valueClass}`}>
+    <div className="min-w-[120px] flex-1 rounded-2xl border border-white/60 bg-white/40 px-4 py-4">
+      <div className="swiss-label">{label}</div>
+      <div
+        className={`mt-1.5 text-[26px] font-extrabold tracking-tight tabular-nums ${valueClass}`}
+      >
         <AnimatedNumber value={value} />
       </div>
     </div>
@@ -167,24 +182,24 @@ function Stat({ label, value, valueClass = 'text-gray-800' }) {
 function FinanceSection({ finance }) {
   const atRisk = finance?.at_risk_customers ?? []
   return (
-    <Card title="💰 Finance">
+    <Card icon="💰" title="Finance" index="03">
       <div className="flex flex-wrap gap-3">
         <Stat label="Revenue" value={finance?.total_revenue} />
         <Stat label="Costs" value={finance?.total_costs} />
         <Stat
           label="Net Profit"
           value={finance?.net_profit}
-          valueClass="text-green-600"
+          valueClass="text-emerald-600"
         />
         <Stat
           label="Unpaid"
           value={finance?.unpaid_amount}
-          valueClass="text-red-600"
+          valueClass="text-red-500"
         />
       </div>
 
       {finance?.summary_urdu && (
-        <div className="mt-4 rounded-md bg-blue-50 border border-blue-100 px-4 py-3 text-lg text-blue-900">
+        <div className="mt-4 rounded-2xl border border-white/60 bg-brand-50/50 px-4 py-3.5 text-lg leading-relaxed text-brand-900">
           {finance.summary_urdu}
         </div>
       )}
@@ -194,10 +209,10 @@ function FinanceSection({ finance }) {
           {atRisk.map((c, i) => (
             <div
               key={c.customer ?? i}
-              className="flex items-center justify-between rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700"
+              className="flex items-center justify-between rounded-xl border border-red-200/70 bg-red-50/70 px-3.5 py-2.5 text-sm text-red-700"
             >
-              <span className="font-medium">{c.customer}</span>
-              <span>Owes {fmt(c.amount_owed)}</span>
+              <span className="font-semibold">{c.customer}</span>
+              <span className="font-medium tabular-nums">Owes {fmt(c.amount_owed)}</span>
             </div>
           ))}
         </div>
@@ -209,9 +224,9 @@ function FinanceSection({ finance }) {
 function StrategySection({ strategy }) {
   const actions = strategy?.actions ?? []
   return (
-    <Card title="🎯 Strategy">
+    <Card icon="🎯" title="Strategy" index="04">
       {strategy?.warning && (
-        <div className="mb-4 rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-800">
+        <div className="mb-4 rounded-xl border border-amber-200/70 bg-amber-50/70 px-3.5 py-2.5 text-sm font-medium text-amber-800">
           ⚠️ {strategy.warning}
         </div>
       )}
@@ -220,14 +235,14 @@ function StrategySection({ strategy }) {
         {actions.map((action, i) => (
           <div
             key={i}
-            className="flex gap-3 rounded-md border border-gray-100 p-3"
+            className="flex gap-3 rounded-xl border border-white/60 bg-white/40 p-3.5 transition-colors hover:bg-white/60"
           >
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-ink-900 text-sm font-bold tabular-nums text-white">
               {action.priority ?? i + 1}
             </div>
             <div>
-              <p className="font-bold text-gray-800">{action.action}</p>
-              <p className="mt-0.5 text-sm text-gray-500">{action.reason}</p>
+              <p className="font-semibold text-ink-800">{action.action}</p>
+              <p className="mt-0.5 text-sm text-ink-500">{action.reason}</p>
             </div>
           </div>
         ))}
@@ -235,7 +250,7 @@ function StrategySection({ strategy }) {
 
       {strategy?.top_performing_item && (
         <div className="mt-4">
-          <Badge className="bg-green-100 text-green-700">
+          <Badge className="bg-emerald-100 text-emerald-700">
             🏆 Top: {strategy.top_performing_item}
           </Badge>
         </div>

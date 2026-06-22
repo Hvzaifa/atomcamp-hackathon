@@ -49,13 +49,10 @@ function InputPanel({ onSubmit, loading }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white border border-gray-200 rounded-lg p-4"
+      className="glass rounded-3xl p-6 sm:p-7"
     >
-      <label
-        htmlFor="raw_input"
-        className="block text-sm font-medium text-gray-700 mb-2"
-      >
-        Describe today's business activity
+      <label htmlFor="raw_input" className="swiss-label mb-2.5 block">
+        Today's activity
       </label>
       <textarea
         id="raw_input"
@@ -64,11 +61,11 @@ function InputPanel({ onSubmit, loading }) {
         placeholder={PLACEHOLDER}
         rows={5}
         disabled={loading}
-        className="w-full rounded-md border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+        className="w-full resize-y rounded-2xl border border-white/70 bg-white/60 p-4 text-[15px] leading-relaxed text-ink-800 placeholder:text-ink-400 transition focus:border-brand-300 focus:bg-white/90 focus:outline-none focus:ring-4 focus:ring-brand-100/70 disabled:opacity-60"
       />
 
-      <div className="mt-3 flex items-center gap-2">
-        <label htmlFor="currency" className="text-sm font-medium text-gray-700">
+      <div className="mt-4 flex items-center gap-2.5">
+        <label htmlFor="currency" className="swiss-label">
           Currency
         </label>
         <select
@@ -76,7 +73,7 @@ function InputPanel({ onSubmit, loading }) {
           value={currency}
           onChange={(e) => setCurrency(e.target.value)}
           disabled={loading}
-          className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+          className="rounded-lg border border-white/70 bg-white/70 px-2.5 py-1.5 text-sm font-semibold text-ink-700 transition focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100/70 disabled:opacity-60"
         >
           {CURRENCIES.map((c) => (
             <option key={c} value={c}>
@@ -86,14 +83,16 @@ function InputPanel({ onSubmit, loading }) {
         </select>
       </div>
 
-      <div className="mt-4 border-t border-gray-100 pt-3">
+      <div className="mt-5 border-t border-white/60 pt-4">
         <button
           type="button"
           onClick={() => setShowInventory((v) => !v)}
-          className="flex items-center gap-1 text-sm font-medium text-gray-700"
+          className="flex items-center gap-1.5 text-sm font-semibold text-ink-700 transition hover:text-brand-600"
         >
-          <span className="text-gray-400">{showInventory ? '▼' : '▶'}</span>
-          Add Inventory (optional)
+          <span className="text-xs text-ink-400">
+            {showInventory ? '▼' : '▶'}
+          </span>
+          Add Inventory <span className="font-normal text-ink-400">(optional)</span>
         </button>
 
         {showInventory && (
@@ -106,7 +105,7 @@ function InputPanel({ onSubmit, loading }) {
                   onChange={(e) => updateRow(i, 'item', e.target.value)}
                   placeholder="Item name"
                   disabled={loading}
-                  className="flex-1 rounded-md border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  className="flex-1 rounded-lg border border-white/70 bg-white/60 px-2.5 py-1.5 text-sm transition focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100/70 disabled:opacity-60"
                 />
                 <input
                   type="number"
@@ -116,7 +115,7 @@ function InputPanel({ onSubmit, loading }) {
                   min="0"
                   step="any"
                   disabled={loading}
-                  className="w-24 rounded-md border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  className="w-24 rounded-lg border border-white/70 bg-white/60 px-2.5 py-1.5 text-sm transition focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100/70 disabled:opacity-60"
                 />
                 <input
                   type="number"
@@ -126,13 +125,13 @@ function InputPanel({ onSubmit, loading }) {
                   min="0"
                   step="any"
                   disabled={loading}
-                  className="w-28 rounded-md border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                  className="w-28 rounded-lg border border-white/70 bg-white/60 px-2.5 py-1.5 text-sm transition focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-100/70 disabled:opacity-60"
                 />
                 <button
                   type="button"
                   onClick={() => removeRow(i)}
                   disabled={loading}
-                  className="rounded-md px-2 py-1 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                  className="rounded-lg px-2 py-1.5 text-sm text-red-500 transition hover:bg-red-50 disabled:opacity-50"
                   aria-label="Remove item"
                 >
                   ✕
@@ -144,7 +143,7 @@ function InputPanel({ onSubmit, loading }) {
               type="button"
               onClick={addRow}
               disabled={loading}
-              className="text-sm font-medium text-blue-600 hover:text-blue-700 disabled:opacity-50"
+              className="text-sm font-semibold text-brand-600 transition hover:text-brand-700 disabled:opacity-50"
             >
               + Add item
             </button>
@@ -155,11 +154,18 @@ function InputPanel({ onSubmit, loading }) {
       <motion.button
         type="submit"
         disabled={loading || !rawInput.trim()}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="mt-4 inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+        whileHover={{ scale: 1.015 }}
+        whileTap={{ scale: 0.985 }}
+        className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-ink-900 px-6 py-3.5 text-sm font-semibold tracking-tight text-white shadow-glass transition hover:bg-ink-800 disabled:cursor-not-allowed disabled:bg-ink-300 disabled:shadow-none sm:w-auto"
       >
-        {loading ? 'Analyzing…' : 'Run Analysis'}
+        {loading ? (
+          <>
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            Analyzing…
+          </>
+        ) : (
+          <>Run analysis →</>
+        )}
       </motion.button>
     </form>
   )

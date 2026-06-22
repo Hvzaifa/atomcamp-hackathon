@@ -8,10 +8,17 @@ const AGENTS = [
 ]
 
 const BADGE = {
-  waiting: { label: 'waiting', className: 'bg-gray-100 text-gray-500' },
-  running: { label: 'running', className: 'bg-blue-100 text-blue-700 animate-pulse' },
-  complete: { label: '✓ complete', className: 'bg-green-100 text-green-700' },
+  waiting: { label: 'idle', className: 'bg-ink-100 text-ink-400' },
+  running: { label: 'running', className: 'bg-brand-100 text-brand-700 animate-pulse' },
+  complete: { label: 'done', className: 'bg-emerald-100 text-emerald-700' },
   error: { label: 'error', className: 'bg-red-100 text-red-700' },
+}
+
+const CARD_STATE = {
+  waiting: 'opacity-60',
+  running: 'ring-2 ring-brand-300/70',
+  complete: '',
+  error: 'ring-2 ring-red-300/70',
 }
 
 function resolveState(traceItem, loading) {
@@ -19,24 +26,17 @@ function resolveState(traceItem, loading) {
   return loading ? 'running' : 'waiting'
 }
 
-// Per-state animation applied to the card while it holds that state.
-function stateAnimation(state) {
-  switch (state) {
-    case 'running':
-      // Subtle continuous pulse.
-      return {
-        scale: [1, 1.03, 1],
-        transition: { duration: 1.2, repeat: Infinity, ease: 'easeInOut' },
-      }
-    case 'complete':
-      // Quick one-off bounce when the card lands.
-      return {
-        scale: [1, 1.08, 1],
-        transition: { duration: 0.35, ease: 'easeOut' },
-      }
-    default:
-      return { scale: 1 }
-  }
+// Variants keyed by state label. Driving `animate` with a label (a string)
+// instead of a fresh object each render means framer-motion only animates on a
+// real state change — re-renders while the trace fills in no longer restart the
+// animation (which previously made the cards flicker in and out).
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  waiting: { opacity: 1, y: 0, scale: 1 },
+  running: { opacity: 1, y: 0, scale: 1 },
+  // One-off bounce when a card lands as complete; plays once, not every render.
+  complete: { opacity: 1, y: 0, scale: [1, 1.06, 1] },
+  error: { opacity: 1, y: 0, scale: 1 },
 }
 
 function AgentTrace({ trace = [], loading = false }) {
@@ -48,26 +48,31 @@ function AgentTrace({ trace = [], loading = false }) {
         const badge = BADGE[state]
 
         return (
-          <div key={agent.key} className="flex items-center flex-1">
+          <div key={agent.key} className="flex flex-1 items-center">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0, ...stateAnimation(state) }}
-              transition={{ type: 'spring', stiffness: 300, damping: 24 }}
-              className="flex-1 bg-white border border-gray-200 rounded-lg p-4 text-center"
+              variants={cardVariants}
+              initial="hidden"
+              animate={state}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className={`glass flex-1 rounded-2xl p-4 text-center transition-[box-shadow,opacity] ${CARD_STATE[state]}`}
             >
-              <div className="text-3xl">{agent.icon}</div>
-              <div className="mt-1 font-medium text-gray-800">{agent.name}</div>
+              <div className="text-2xl">{agent.icon}</div>
+              <div className="mt-2 text-sm font-semibold tracking-tight text-ink-800">
+                {agent.name}
+              </div>
               <span
-                className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${badge.className}`}
+                className={`mt-2 inline-block rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${badge.className}`}
               >
                 {badge.label}
               </span>
               {traceItem?.summary && (
-                <p className="mt-2 text-xs text-gray-500">{traceItem.summary}</p>
+                <p className="mt-2 text-xs leading-snug text-ink-500">
+                  {traceItem.summary}
+                </p>
               )}
             </motion.div>
             {index < AGENTS.length - 1 && (
-              <div className="px-1 text-gray-300 text-xl" aria-hidden="true">
+              <div className="px-1 text-ink-300" aria-hidden="true">
                 →
               </div>
             )}

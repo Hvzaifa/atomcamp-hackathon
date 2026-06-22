@@ -1,3 +1,38 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-[#eef0f4] text-ink-800 font-sans;
+    min-height: 100vh;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
+  }
+}
+
+@layer components {
+  /* Liquid glass: frosted translucent panel over the aurora backdrop.
+     Blur radius is kept modest (md) and the fill opacity is raised so the
+     frosted look survives — a smaller backdrop-blur radius is dramatically
+     cheaper to recomposite while scrolling. */
+  .glass {
+    @apply border border-white/60 bg-white/70 backdrop-blur-md;
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.6) inset,
+      0 14px 44px -16px rgba(12, 14, 18, 0.28);
+  }
+
+  .glass-soft {
+    @apply border border-white/50 bg-white/55 backdrop-blur-sm;
+  }
+
+  /* Swiss-style micro label: uppercase, tracked, quiet. */
+  .swiss-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-400;
+  }
+}
